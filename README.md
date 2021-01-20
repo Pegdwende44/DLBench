@@ -1,7 +1,9 @@
 # DLDataGen
 
 This project provides scripts two scripts to generate data for experiments need, especially in a context of data lakes.
+
 The first script, "DocumentDataGen.py" allows to download (long) textual documents from the HAL repository. 
+
 The second script, "TabularDataGen.py" allows to extract tabular files from a base SQLite database.
 
 ## "DocumentDataGen.py"
