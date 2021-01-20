@@ -6,7 +6,7 @@ The first script, "DocumentDataGen.py" allows to download (long) textual documen
 
 The second script, "TabularDataGen.py" allows to extract tabular files from a base SQLite database.
 
-## "DocumentDataGen.py"
+## 1- "DocumentDataGen.py"
 
 ### Dependencies
 The script needs the following python packages to run effectively: tqdm, pandas, argopt, joblib, unidecode and requests
@@ -17,11 +17,16 @@ of processor cores to use.
   
 For example, to generate 10000 documents using 5 cores, you have to enter 'python -l 10 -j 5'. 
 
-The script automatically creates a 'data' folder where all generated data are stored. It also provides a CSV catalogue of basic metadata (title, language, path, institution) 
-for on all generated files. 
+The script automatically creates a 'data' folder where all generated data are stored. It also provides a CSV catalogue of basic metadata (title, language, path, institution)  on all generated files. 
 
-## "TabularDataGen.py"
+## 2- "TabularDataGen.py"
 
 ### Dependencies
+The script needs the following python packages to run effectively: tqdm, pandas, argopt and sqlalchemy
 
 ### Usage
+To generate tabular files, type 'python TabularDataGen.py -l <limit>', with limit the number of thousands of tabular files to generate.
+  
+For example, to generate 2000 tabular files, you have to enter 'python -l 2'. 
+
+The script automatically creates a 'data' folder where all generated data are stored.  
