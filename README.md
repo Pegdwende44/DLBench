@@ -24,6 +24,8 @@ The script automatically creates a 'data' folder where all generated data are st
 ### Dependencies
 The script needs the following python packages to run effectively: tqdm, pandas, argopt and sqlalchemy
 
+In addition to these python packages, you have to put in the same folder the SQLite database from which tabular files are extrected. Such database must be downloaded from https://storage.googleapis.com/table-union-benchmark/large/benchmark.sqlite
+
 ### Usage
 To generate tabular files, type 'python TabularDataGen.py -l <limit>', with limit the number of thousands of tabular files to generate.
   
