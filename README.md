@@ -1,4 +1,4 @@
-# DLDataGen
+# DLBench
 
 This project provides two scripts to generate data for experiments need, especially in a context of data lakes.
 
