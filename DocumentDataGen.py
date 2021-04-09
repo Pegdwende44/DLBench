@@ -44,7 +44,7 @@ def build_hal_docs_catalogue(limit=1000):
 		current_cursor = ""
 		next_cursor="*"
 		remaining = limit
-		col_names =  ['docid', 'domain', 'submitted_date', 'title', 'file_url', 'inst', 'language', 'filepath']
+		col_names =  ['docid', 'domain', 'submitted_date', 'title', 'file_url', 'inst_country', 'publisher', 'language', 'filepath']
 		df  = pd.DataFrame(columns = col_names)
 		#Query parameters
 		request_url = "https://api.archives-ouvertes.fr/search/"
@@ -53,7 +53,7 @@ def build_hal_docs_catalogue(limit=1000):
 		request_params['fq'] = ["docType_s:(ART)","submitType_s:file","submittedDateY_i:[2000 TO 2020]","language_s:(en OR fr)" ] #filtering
 		request_params['wt'] = "json" #return json results
 		request_params['sort'] = "docid asc" #sort
-		request_params['fl'] = ['docid',  'domain_s', 'submittedDate_s', 'title_s', 'fileMain_s', 'instStructAcronym_s', 'language_s']
+		request_params['fl'] = ['docid',  'domain_s', 'submittedDate_s', 'title_s', 'fileMain_s', 'instStructCountry_s', 'language_s']
 		request_params['rows'] = "1000"
         
 		print("START MAKING CATALOGUE...")
@@ -93,11 +93,11 @@ def build_hal_docs_catalogue(limit=1000):
 							doc_dict['title'] = doc.get('title_s', '')
 						#fileMain_s (url)   
 						doc_dict['file_url'] = doc.get('fileMain_s', '')
-						#structure
-						if len(doc.get('instStructAcronym_s', '')) > 0:
-							doc_dict['inst'] = doc.get('instStructAcronym_s')[0]
+						#structure country
+						if len(doc.get('instStructCountry_s', '')) > 0:
+							doc_dict['inst_country'] = doc.get('instStructCountry_s')[0]
 						else:
-							doc_dict['inst'] = doc.get('instStructAcronym_s', '')
+							doc_dict['inst_country'] = doc.get('instStructCountry_s', '')
 						#language
 						if len(doc.get('language_s', '')) > 0:
 							doc_dict['language'] = doc.get('language_s')[0]
@@ -116,15 +116,22 @@ def build_hal_docs_catalogue(limit=1000):
 							else:
 								consecutive_errors = consecutive_errors+1
 								print("Error for file with id %d!" %doc_dict['docid'])
+						except KeyboardInterrupt:
+							print("Keyboard interrupt exception caught")
+							sys.exit()
 						except:
 							consecutive_errors = consecutive_errors+1
-							print("File not existing in path %s ! Lets try next..." %(doc_dict['file_url']))
+							print("File not existing in path  ", doc_dict['file_url'], " ! \n  Lets try next...")
+						
 				print("REQUEST...OK!")
 				print("NOW %d DOCS IN THE CATALOGUE..." % (limit-remaining))
                 #export catalogue
 		df.to_csv(output_folder+"/catalogue.csv", sep=";", index=False)
 		print("FINISHED WITH %d DOCS FOUND" % len(df))
 		return 1
+	except KeyboardInterrupt:
+		print("Keyboard interrupt exception caught")
+		sys.exit()
 	except:
 		print("Error while %d docs found" % (limit-remaining))
 		return 0
@@ -153,6 +160,9 @@ def download_file(url, id, path):
             return 1
         else:
             return 0
+    except KeyboardInterrupt:
+        print("Keyboard interrupt exception caught")
+        sys.exit()
     except:
         # if file is created, delete it
         if os.path.exists(f"{path}"): 
@@ -199,42 +209,44 @@ def download_text_files(limit=-1, n_jobs=1):
 
 def main(argv):
 	#default parameters
-	LIMIT = 1
+	LIMIT = 0
 	N_JOBS = 1
 
 	#get custom parameters
 	try:
-		opts, args = getopt.getopt(argv,"l:j:")
+		opts, args = getopt.getopt(argv,"S:J:")
 	except getopt.GetoptError:
-		print('DocumentDataGen.py -l <limit> -j <n_jobs>')
+		print('DocumentDataGen.py -S <scale> -J <n_jobs>')
 		sys.exit()
 	try:
 		for opt, arg in opts:
-			if opt == '-l':
+			if opt == '-S':
 				LIMIT = int(arg)
 				#LIMIT OKAY
-			elif opt == '-j':
+			elif opt == '-J':
 				N_JOBS = int(arg)
 			else:
-				print('DocumentDataGen.py -l <limit> -j <n_jobs>')
+				print('DocumentDataGen.py -S <scale> -J <n_jobs>')
 				sys.exit()
 	except:
-		print('DocumentDataGen.py -l <limit> -j <n_jobs>')
+		print('DocumentDataGen.py -S <scale> -J <n_jobs>')
 		sys.exit()
 	
-	if (LIMIT > 50 or LIMIT < 1 or N_JOBS < 1) :
-		print("Invalid parameter: Must have l between 1 and 50, and j at least 1.")
+	if (LIMIT > 5 or LIMIT < 1 or N_JOBS < 1) :
+		print("Invalid or undefined parameters: Must have S parameter between 1 and 5, and J at least 1.")
+		print('DocumentDataGen.py -S <scale> -J <n_jobs>')
 		sys.exit()
 	start = time()
 
 
 
 	#build catalogue
-	build_hal_docs_catalogue(limit=LIMIT*1000)
+	build_hal_docs_catalogue(limit=LIMIT*10000)
 	print("CATALOGUE BUILT...")
 	#download data
+	
 	download_text_files(n_jobs=N_JOBS)
-
+	
 	done = time()
 	elapsed = done - start
 	print("*"*20)
